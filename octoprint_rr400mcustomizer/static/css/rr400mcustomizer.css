@@ -1,0 +1,28 @@
+#navbar_plugin_rr400mcustomizer_div {
+  box-sizing: border-box;
+  height: auto;
+}
+#navbar_plugin_rr400mcustomizer svg {
+  fill: currentColor;
+  height: 1.4em;
+  margin-bottom: 0.3em;
+  vertical-align: middle;
+}
+#navbar_plugin_rr400mcustomizer .popover {
+  width: auto !important;
+  max-width: 50em;
+}
+#navbar_plugin_rr400mcustomizer .popover table {
+  width: auto !important;
+  table-layout: auto !important;
+}
+#navbar_plugin_rr400mcustomizer .popover td {
+  width: auto !important;
+  white-space: nowrap;
+}
+#navbar_plugin_rr400mcustomizer .popover td:last-child {
+  padding-left: 1em;
+}
+#navbar_plugin_rr400mcustomizer .popover-title {
+  white-space: nowrap;
+}
