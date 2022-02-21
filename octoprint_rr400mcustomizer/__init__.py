@@ -5,25 +5,81 @@ import sys
 import logging
 import flask
 import netifaces as ni
+import re
 from octoprint.util import RepeatedTimer
 
 __plugin_name__ = "RR400M Customizer"
 __plugin_pythoncompat__ = ">=3.7,<4"
 
 class RR400MCustomizerPlugin(
+    octoprint.plugin.SettingsPlugin,
     octoprint.plugin.StartupPlugin,
     octoprint.plugin.TemplatePlugin,
-    octoprint.plugin.AssetPlugin,
-    octoprint.plugin.SettingsPlugin,
-#    octoprint.plugin.SimpleApiPlugin,
+    octoprint.plugin.AssetPlugin
 ):
+
+    def get_settings_defaults(self):
+        self._logger.info("%s: default called" % __plugin_name__)
+        return dict(
+            wifi=dict(
+               ssid=self.wifi_ssid,
+               psk=self.wifi_psk
+            )
+        )
+
+    def on_settings_save(self, data):
+        self._logger.info("%s: save called" % __plugin_name__)
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        self.wifi_ssid = self._settings.get(["wifi", "ssid"])
+        self.wifi_psk = self._settings.get(["wifi", "psk"])
+        with open('/opt/rebelove.org/var/updatewifi.lock', 'w') as f:
+            f.write('ssid="%s"\n' % self.wifi_ssid)
+            f.write('psk="%s"\n' % self.wifi_psk)
+
+
+    def regex_kv_pairs(self, text, item_sep=r"\s", value_sep="="):
+        """
+        Parse key-value pairs from a shell-like text with regex.
+        This approach is ~ 25 times faster than the shlex approach.
+        Returns a dict with the keys and values from the text input
+        """
+
+        split_regex = r"""
+            (?P<key>[\w\-]+)=       # Key consists of only alphanumerics and '-' character
+            (?P<quote>["']?)        # Optional quote character.
+            (?P<value>[\S\s]*?)     # Value is a non greedy match
+            (?P=quote)              # Closing quote equals the first.
+            ($|\s)                  # Entry ends with comma or end of string
+        """.replace("=", value_sep).replace(r"|\s)", f"|{item_sep})")
+        regex = re.compile(split_regex, re.VERBOSE)
+
+        return {match.group("key"): match.group("value") for match in regex.finditer(text)}
 
     def __init__(self):
         self._updateTimer = None
+        # Read WiFi config
+        wificfg = '/etc/wpa_supplicant/wpa_supplicant-wlan0.conf'
+        cfgfile = open(wificfg, 'r')
+        Lines = cfgfile.readlines()
+        cfgfile.close()
+
+        # process lines
+        self.wifi_ssid = ''
+        self.wifi_psk = ''
+        for line in Lines:
+            m = self.regex_kv_pairs(line.strip())
+            if 'ssid' in m:
+                self.wifi_ssid = m['ssid']
+            if 'psk' in m:
+                self.wifi_psk = m['psk']
+#        self._logger.info("RR400MCustomizer: WiFI %s/%s" % (wifi_ssid, wifi_pass))
 
     def on_after_startup(self):
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
         self.start_update_timer(10.0)
+
+#        wifi_ssid = self._settings.get(["wifi", "ssid"])
+#        wifi_psk = self._settings.get(["wifi", "psk"])
 
     def get_assets(self):
         return {
@@ -42,7 +98,7 @@ class RR400MCustomizerPlugin(
             },
             {
                 "type": "settings",
-                "custom_bindings": True,
+                "custom_bindings": False,
             },
         ]
 

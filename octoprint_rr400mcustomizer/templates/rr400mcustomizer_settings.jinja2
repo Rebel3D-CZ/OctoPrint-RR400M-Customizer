@@ -1,3 +1,26 @@
 <form class="form-horizontal">
-  <h3>{{ _('RR400M Customizer') }}</h3>
+    <ul class="nav nav-pills">
+        <li class="active">
+            <a data-toggle="tab" href="#settings_rr400mcustomizer_general">{{ _('General') }}</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#settings_rr400mcustomizer_wifi">{{ _('WiFi') }}</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="settings_rr400mcustomizer_general">
+            <h4>{{ _('General options') }}</h4>
+        </div>
+         <div class="tab-pane" id="settings_rr400mcustomizer_wifi">
+            <h4>{{ _('WiFi') }}</h4>
+            <dl>
+              <dt>{{ _('SSID') }}</dt>
+              <dd><input type="text" size="20" class="input-block-level"
+                   data-bind="value: settings.plugins.rr400mcustomizer.wifi.ssid"></dd>
+              <dt>{{ _('PSK') }}</dt>
+              <dd><input type="text" size="20" class="input-block-level"
+                   data-bind="value: settings.plugins.rr400mcustomizer.wifi.psk"></dd>
+            </dl>
+        </div>
+    </div>
 </form>

@@ -15,13 +15,12 @@ $(function () {
       '<table style="width: 100%"><thead></thead><tbody><tr><td>&copy; 2022 Rebel3D</td></tr></tbody></table>'
     );
 
-/*
-    self.onSettingsShown = function () {
-      OctoPrint.simpleApiGet("rr400mcustomizer").done(function (response) {
-        self.interfaces(response.interfaces);
-      });
+    self.settings = undefined;
+
+    self.onAfterBinding = function () {};
+    self.onBeforeBinding = function () {
+        self.settings = self.settingsViewModel.settings.plugins.rr400mcustomizer;
     };
-*/
 
     self.onDataUpdaterPluginMessage = function (plugin, data) {
       if (plugin != "rr400mcustomizer") {
