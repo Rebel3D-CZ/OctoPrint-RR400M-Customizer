@@ -57,6 +57,7 @@ class RR400MCustomizerPlugin(
 
     def __init__(self):
         self._updateTimer = None
+        self.wifimode = None
         # Read WiFi config
         wificfg = '/etc/wpa_supplicant/wpa_supplicant-wlan0.conf'
         cfgfile = open(wificfg, 'r')
@@ -77,9 +78,6 @@ class RR400MCustomizerPlugin(
     def on_after_startup(self):
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
         self.start_update_timer(10.0)
-
-#        wifi_ssid = self._settings.get(["wifi", "ssid"])
-#        wifi_psk = self._settings.get(["wifi", "psk"])
 
     def get_assets(self):
         return {
@@ -106,14 +104,42 @@ class RR400MCustomizerPlugin(
         self._logger.debug("RR400mMCstomizer: update fired!")
         try:
             plugin_data = {}
-
             plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
-
             self._logger.debug(plugin_data)
-
             self._plugin_manager.send_plugin_message(self._identifier, plugin_data)
         except Exception as exc:
             self._logger.debug(f"RR400MCustomizer: timer exception: {exc.args}")
+            pass
+
+        # detect wifi status
+        try:
+            self._logger.info("%s: WiFi in mode %s" % (__plugin_name__, self.wifimode))
+            # test WLAN mode
+            iface = ni.ifaddresses('wlan0')
+            if ni.AF_INET in iface:
+                sys_ip = iface[ni.AF_INET][0]['addr']
+                # in AP mode
+                if len(sys_ip) > 7 and self.wifimode != 'wlan':
+                    self._logger.debug("RR400mMCstomizer: WiFi switched to WLAN mode")
+                    self.wifimode = 'wlan'
+                    octoprint.printer.commands("M118 A1 P0 action.notification SSID %s IP %s" % ("?ssid?", sys_ip))
+#                    self._logger.info("%s: GCODE WLAN ip=%s" % (__plugin_name__, sys_ip))
+                return
+
+            # test AP mode
+            sys_ip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
+            if len(sys_ip) > 7:
+                # in AP mode
+                if self.wifimode != 'ap':
+                    self._logger.debug("RR400mMCstomizer: WiFi switched to AP mode")
+                    self.wifimode = 'ap'
+                    octoprint.printer.commands("M118 A1 P0 action.notification IP %s" % (sys_ip))
+#                    self._logger.info("%s: GCODE AP ip=%s" % (__plugin_name__, sys_ip))
+                return
+        except Exception as exc:
+#            self._logger.info(f"RR400MCustomizer: timer exception: %s" % str(exc))
+            self._logger.info(f"RR400MCustomizer: timer exception: {exc.args}")
+            pass
 
     def start_update_timer(self, interval):
         self._updateTimer = RepeatedTimer(
