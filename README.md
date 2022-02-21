@@ -5,5 +5,7 @@ Nutno dinstalovat:
 
 sudo apt-get install python3-netifaces
 
-https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
+https://github.com/Rebel3D-CZ/RPiWlanApHost-switcher
+
+Pro manualni instalaco pluginu v OctPrintu pouzijte adresu ´´´https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip ´´´
 
