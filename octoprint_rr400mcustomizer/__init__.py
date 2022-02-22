@@ -122,7 +122,7 @@ class RR400MCustomizerPlugin(
                 if len(sys_ip) > 7 and self.wifimode != 'wlan':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to WLAN mode")
                     self.wifimode = 'wlan'
-                    octoprint.printer.commands("M118 A1 P0 action.notification SSID %s IP %s" % ("?ssid?", sys_ip))
+                    self._printer.commands("M118 A1 P0 action.notification SSID %s IP %s" % ("?ssid?", sys_ip))
 #                    self._logger.info("%s: GCODE WLAN ip=%s" % (__plugin_name__, sys_ip))
                 return
 
@@ -133,7 +133,7 @@ class RR400MCustomizerPlugin(
                 if self.wifimode != 'ap':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to AP mode")
                     self.wifimode = 'ap'
-                    octoprint.printer.commands("M118 A1 P0 action.notification IP %s" % (sys_ip))
+                    self._printer.commands("M118 A1 P0 action.notification IP %s" % (sys_ip))
 #                    self._logger.info("%s: GCODE AP ip=%s" % (__plugin_name__, sys_ip))
                 return
         except Exception as exc:
