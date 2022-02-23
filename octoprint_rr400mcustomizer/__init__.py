@@ -24,13 +24,13 @@ class RR400MCustomizerPlugin(
 
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
-            self._printer.commands("M118 A1 P0 action:print_start")
+            self._printer.commands("M118 A1 P2 action:print_start")
         elif event in (Events.PRINT_DONE, Events.PRINT_FAILED, Events.PRINT_CANCELLED):
-            self._printer.commands("M118 A1 P0 action:print_end")
+            self._printer.commands("M118 A1 P2 action:print_end")
         elif event == Events.PRINT_PAUSED:
-            self._printer.commands("M118 A1 P0 action:pause")
+            self._printer.commands("M118 A1 P2 action:pause")
         elif event == Events.PRINT_RESUMED:
-            self._printer.commands("M118 A1 P0 action:resume")
+            self._printer.commands("M118 A1 P2 action:resume")
 
     def get_settings_defaults(self):
         self._logger.info("%s: default called" % __plugin_name__)
