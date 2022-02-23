@@ -20,7 +20,8 @@ https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
     2. Stop a přerušení tisku
     3. Pauza a obnovení
     4. Progress tisku v %
-- nastavení připojení WiFi -pracuje se na tom
-- zobrazení IP tiskárny pro připojení na OctoPrint -pracuje se na tom
-- ovládání servisní VPN a zobrazení ID clienta pro dálkovou podporu -pracuje se na tom
+- nastavení připojení WiFi - HOTOVO
+- zobrazení IP tiskárny pro připojení na OctoPrint - HOTOVO
+- zobrazení ID clienta pro dálkovou podporu - HOTOVO
+- ovládání servisní VPN
 
