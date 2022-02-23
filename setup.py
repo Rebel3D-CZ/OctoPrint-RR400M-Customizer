@@ -4,8 +4,8 @@
 
 plugin_identifier = "rr400mcustomizer"
 plugin_package = "octoprint_{}".format(plugin_identifier)
-plugin_name = "RR400M Customizer"
-plugin_version = "0.2.4"
+plugin_name = "OctoPrint RR400M Customizer"
+plugin_version = "0.2.5"
 plugin_description = "Adjustments of OctoPrint for 3D printer RR400M with BTT TFT50 LCD"
 plugin_author = "Camel1cz"
 plugin_author_email = "camel@camel.cz"
