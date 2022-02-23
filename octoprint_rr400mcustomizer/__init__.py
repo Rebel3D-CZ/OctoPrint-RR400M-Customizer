@@ -7,7 +7,9 @@ import flask
 import netifaces as ni
 import re
 import socket
+import traceback
 from octoprint.util import RepeatedTimer
+from octoprint.events import Events
 
 __plugin_name__ = "RR400M Customizer"
 __plugin_pythoncompat__ = ">=3.7,<4"
