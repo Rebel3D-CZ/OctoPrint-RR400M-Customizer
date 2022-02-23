@@ -15,11 +15,11 @@ https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
 ```
 
 **FUNKCE:**
-- odesílání informací o průběhu tisku na BTT TFT -pracuje se na tom
-    1. Start tisu (zobrazí tiskovou obrazovku)
-    2. Stop a přerušení tisku
-    3. Pauza a obnovení
-    4. Progress tisku v %
+- odesílání informací o průběhu tisku na BTT TFT
+    1. Start tisu (zobrazí tiskovou obrazovku) - **HOTOVO**
+    2. Stop a přerušení tisku - **HOTOVO**
+    3. Pauza a obnovení - **HOTOVO**
+    4. Progress tisku v % - **HOTOVO**
 - nastavení připojení WiFi - **HOTOVO**
 - zobrazení IP tiskárny pro připojení na OctoPrint - **HOTOVO**
 - zobrazení ID clienta pro dálkovou podporu - **HOTOVO**
