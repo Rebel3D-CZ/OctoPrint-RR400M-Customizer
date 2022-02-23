@@ -114,6 +114,17 @@ class RR400MCustomizerPlugin(
 
     def update_rr400mcustomizer_status(self):
         self._logger.debug("RR400mMCstomizer: update fired!")
+        # Show progress if printing
+        if self._printer.is_printing():
+            try:
+                currentData = self._printer.get_current_data()
+                currentData = self._sanitize_current_data(currentData)
+                progressPerc = int(currentData["progress"]["completion"])
+                self._printer.commands("M118 A1 P0 action:notification Data Left {}/100".format(progressPerc))
+            except Exception as e:
+                self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+
+        # update network status
         try:
             plugin_data = {}
             plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
@@ -174,6 +185,63 @@ class RR400MCustomizerPlugin(
                 "pip": "https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/{target_version}.zip",
             }
         }
+
+    def _sanitize_current_data(self, currentData):
+	if currentData["progress"]["printTimeLeft"] is None:
+	    currentData["progress"]["printTimeLeft"] = currentData["job"]["estimatedPrintTime"]
+	if currentData["progress"]["filepos"] is None:
+	    currentData["progress"]["filepos"] = 0
+	if currentData["progress"]["printTime"] is None:
+	    currentData["progress"]["printTime"] = currentData["job"]["estimatedPrintTime"]
+
+	currentData["progress"]["printTimeLeftString"] = "No ETL yet"
+	currentData["progress"]["ETA"] = "No ETA yet"
+	currentData["progress"]["layerProgress"] = "N/A"
+	currentData["progress"]["heightProgress"] = "N/A"
+	currentData["progress"]["changeFilamentIn"] = "N/A"
+	
+	accuracy = currentData["progress"]["printTimeLeftOrigin"]
+	if accuracy:
+	    if accuracy == "estimate":
+		accuracy = "Best"
+	    elif accuracy == "average" or accuracy == "genius":
+		accuracy = "Good"
+	    elif accuracy == "analysis" or accuracy.startswith("mixed"):
+		accuracy = "Medium"
+	    elif accuracy == "linear":
+		accuracy = "Bad"
+	    else:
+		accuracy = "ERR"
+		self._logger.debug("Caught unmapped accuracy value: {0}".format(accuracy))
+	else:
+	    accuracy = "N/A"
+	currentData["progress"]["accuracy"] = accuracy
+	
+	currentData["progress"]["filename"] = currentData["job"]["file"]["name"]
+
+	# Add additional data
+	try:
+	    currentData["progress"]["printTimeString"] = self._get_time_from_seconds(
+		currentData["progress"]["printTime"])
+	    currentData["progress"]["printTimeLeftString"] = self._get_time_from_seconds(
+		currentData["progress"]["printTimeLeft"])
+	    currentData["progress"]["ETA"] = time.strftime(self._eta_strftime, time.localtime(
+		time.time() + currentData["progress"]["printTimeLeft"]))
+	    currentData["progress"]["layerProgress"] = self._layerIs
+	    currentData["progress"]["heightProgress"] = self._heightIs
+	    if isinstance(self._changeFilamentSeconds, int):
+		if self._changeFilamentSeconds == 0:
+		    currentData["progress"]["changeFilamentIn"] = "N/A"
+		else: 
+		    currentData["progress"]["changeFilamentIn"] = self._get_time_from_seconds(
+			self._changeFilamentSeconds)
+	except Exception as e:
+	    self._logger.debug(
+		"Caught an exception trying to parse data: {0}\n Error is: {1}\nTraceback:{2}".format(currentData, e,
+												      traceback.format_exc()))
+
+	return currentData
+
 
 def __plugin_load__():
     global __plugin_implementation__
