@@ -24,4 +24,5 @@ https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
 - zobrazení IP tiskárny pro připojení na OctoPrint - **HOTOVO**
 - zobrazení ID clienta pro dálkovou podporu - **HOTOVO**
 - ovládání servisní VPN
+- možnost vypnutí příkazů pro ovládání BTT TFT v případě použití jiného LCD
 
