@@ -1,1 +1,2 @@
 - možnost vypnutí příkazů pro ovládání BTT TFT v případě použití jiného LCD
+- ovládání servisní VPN
