@@ -26,3 +26,7 @@
 #navbar_plugin_rr400mcustomizer .popover-title {
   white-space: nowrap;
 }
+
+#settings_plugin_rr400mcustomizer #available-ssids {
+  margin-top: 20px;
+}

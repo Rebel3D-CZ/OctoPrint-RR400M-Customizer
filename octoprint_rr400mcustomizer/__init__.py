@@ -127,8 +127,13 @@ class RR400MCustomizerPlugin(
 
         # update network status
         try:
-            plugin_data = {}
+            plugin_data = {"ssids": []}
             plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
+            try:
+                with open('/opt/rebelove.org/var/list.ssid') as f:
+                    plugin_data["ssids"] = f.read().splitlines()
+            except Exception as exc:
+                pass
             self._logger.debug(plugin_data)
             self._plugin_manager.send_plugin_message(self._identifier, plugin_data)
         except Exception as exc:
