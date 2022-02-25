@@ -1,5 +1,5 @@
 # OctoPrint-RR400M-Customizer
-Přizpůsobení OctoPrintu pro 3D tiskárnu RR400M s BTT TFT50(35,70) LCD
+Přizpůsobení OctoPrintu pro 3D tiskárnu RR400M s BTT TFT50(43,70) LCD
 
 **Nutno dinstalovat:**
 ```
