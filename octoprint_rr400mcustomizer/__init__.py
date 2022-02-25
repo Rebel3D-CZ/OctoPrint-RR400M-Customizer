@@ -8,6 +8,7 @@ import netifaces as ni
 import re
 import socket
 import traceback
+from pathlib import Path
 from octoprint.util import RepeatedTimer
 from octoprint.events import Events
 
@@ -35,6 +36,9 @@ class RR400MCustomizerPlugin(
     def get_settings_defaults(self):
         self._logger.info("%s: default called" % __plugin_name__)
         return dict(
+            vpn=dict(
+               enabled=True
+            ),
             wifi=dict(
                ssid=self.wifi_ssid,
                psk=self.wifi_psk
@@ -43,13 +47,26 @@ class RR400MCustomizerPlugin(
 
     def on_settings_save(self, data):
         self._logger.info("%s: save called" % __plugin_name__)
-        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        self.vpn_enabled = self._settings.get(["vpn", "enabled"])
         self.wifi_ssid = self._settings.get(["wifi", "ssid"])
         self.wifi_psk = self._settings.get(["wifi", "psk"])
-        with open('/opt/rebelove.org/var/updatewifi.lock', 'w') as f:
-            f.write('ssid="%s"\n' % self.wifi_ssid)
-            f.write('psk="%s"\n' % self.wifi_psk)
 
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+        if self.vpn_enabled != self._settings.get(["vpn", "enabled"]):
+            self.vpn_enabled=self._settings.get(["vpn", "enabled"])
+            if self.vpn_enabled:
+                # enable
+                Path('/opt/rebelove.org/var/vpn.enable').touch()
+            else:
+                # disable
+                Path('/opt/rebelove.org/var/vpn.disable').touch()
+        if self.wifi_ssid != self._settings.get(["wifi", "ssid"]) or self.wifi_psk != self._settings.get(["wifi", "psk"]):
+            self.wifi_ssid = self._settings.get(["wifi", "ssid"])
+            self.wifi_psk = self._settings.get(["wifi", "psk"])
+            with open('/opt/rebelove.org/var/updatewifi.lock', 'w') as f:
+                f.write('ssid="%s"\n' % self.wifi_ssid)
+                f.write('psk="%s"\n' % self.wifi_psk)
 
     def regex_kv_pairs(self, text, item_sep=r"\s", value_sep="="):
         """
@@ -78,6 +95,7 @@ class RR400MCustomizerPlugin(
         Lines = cfgfile.readlines()
         cfgfile.close()
 
+        self.vpn_enabled=True
         # process lines
         self.wifi_ssid = ''
         self.wifi_psk = ''

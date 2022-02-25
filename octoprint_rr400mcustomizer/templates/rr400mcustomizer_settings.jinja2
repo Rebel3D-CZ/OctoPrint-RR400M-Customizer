@@ -6,12 +6,15 @@
         <li>
             <a data-toggle="tab" href="#settings_rr400mcustomizer_wifi">{{ _('WiFi') }}</a>
         </li>
+        <li>
+            <a data-toggle="tab" href="#settings_rr400mcustomizer_vpn">{{ _('VPN') }}</a>
+        </li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="settings_rr400mcustomizer_general">
             <h4>{{ _('General options') }}</h4>
         </div>
-         <div class="tab-pane" id="settings_rr400mcustomizer_wifi">
+        <div class="tab-pane" id="settings_rr400mcustomizer_wifi">
             <h4>{{ _('WiFi') }}</h4>
             <dl>
               <dt>{{ _('SSID') }}</dt>
@@ -24,6 +27,13 @@
             <button id="rr400m_refreshWiFi">Scan Wifi</button>
             <div id="available-ssids">
             </div>
+        </div>
+        <div class="tab-pane" id="settings_rr400mcustomizer_vpn">
+            <h4>{{ _('VPN') }}</h4>
+            <dl>
+              <dt>{{ _('VPN enabled') }}</dt>
+              <dd><input data-bind="checked: settings.plugins.rr400mcustomizer.vpn.enabled" type="checkbox"></dd>
+            </dl>
         </div>
     </div>
 </form>
