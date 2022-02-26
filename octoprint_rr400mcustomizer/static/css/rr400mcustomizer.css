@@ -30,3 +30,28 @@
 #settings_plugin_rr400mcustomizer #available-ssids {
   margin-top: 20px;
 }
+
+#settings_plugin_rr400mcustomizer dl {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0
+}
+
+#settings_plugin_rr400mcustomizer dt {
+  float: left;
+  width: 40%;
+  padding: 0;
+  margin: 10px
+}
+
+#settings_plugin_rr400mcustomizer dd {
+  float: left;
+  width: 40%;
+  padding: 0;
+  margin: 10px
+}
+
+#settings_plugin_rr400mcustomizer select, #settings_plugin_rr400mcustomizer button {
+  color: black;
+}
