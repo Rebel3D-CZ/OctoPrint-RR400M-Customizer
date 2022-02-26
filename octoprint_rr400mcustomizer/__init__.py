@@ -4,7 +4,7 @@ _lcddrv_imported_ = False
 
 try:
     from .lcddrv.LCDNull import LCDNull
-    from .lcddrv.LCDTFT import LCDTFT
+    from .lcddrv.BTTTFT import BTTTFT
 
     _lcddrv_imported_ = True
 except:
@@ -36,7 +36,7 @@ class RR400MCustomizerPlugin(
 
     def _setLCDMode(self):
         if self.lcdMode == 1:
-            self.lcdDriver = LCDTFT()
+            self.lcdDriver = BTTTFT()
         else:
             self.lcdDriver = LCDNull()
 
