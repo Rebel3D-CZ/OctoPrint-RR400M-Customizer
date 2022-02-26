@@ -174,7 +174,7 @@ class RR400MCustomizerPlugin(
             try:
                 currentData = self._printer.get_current_data()
                 progressPerc = int(currentData["progress"]["completion"])
-                self.lcdDriver.updateProgress(progressPerc)
+                self.lcdDriver.updateProgress(self._printer, progressPerc)
             except Exception as e:
                 self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
