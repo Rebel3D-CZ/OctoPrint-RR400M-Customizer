@@ -1,4 +1,4 @@
-class LCDNull:
+class LCDTFT:
   def printStart(self, printer):
     printer.commands("M118 A1 P2 action:print_start")
     return
@@ -17,4 +17,8 @@ class LCDNull:
 
   def updateProgress(self, progressPerc):
     self._printer.commands("M118 A1 P0 action:notification Data Left {}/100".format(progressPerc))
+    return
+
+  def notify(self, printer, message):
+    printer.commands("M118 A1 P0 action:notification %s" % (message))
     return

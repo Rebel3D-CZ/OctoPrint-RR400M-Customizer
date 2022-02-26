@@ -13,3 +13,6 @@ class LCDNull:
 
   def updateProgress(self, progressPerc):
     return
+
+  def notify(self, printer, message):
+    return
