@@ -1,4 +1,4 @@
-class LCDTFT:
+class BTTTFT:
   def printStart(self, printer):
     printer.commands("M118 A1 P2 action:print_start")
     return
