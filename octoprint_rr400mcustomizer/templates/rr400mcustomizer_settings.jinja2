@@ -7,12 +7,16 @@
             <a data-toggle="tab" href="#settings_rr400mcustomizer_wifi">{{ _('WiFi') }}</a>
         </li>
         <li>
-            <a data-toggle="tab" href="#settings_rr400mcustomizer_vpn">{{ _('VPN') }}</a>
+            <a data-toggle="tab" href="#settings_rr400mcustomizer_lcd">{{ _('LCD') }}</a>
         </li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="settings_rr400mcustomizer_general">
             <h4>{{ _('General options') }}</h4>
+            <dl>
+              <dt>{{ _('VPN enabled') }}</dt>
+              <dd><input data-bind="checked: settings.plugins.rr400mcustomizer.vpn.enabled" type="checkbox"></dd>
+            </dl>
         </div>
         <div class="tab-pane" id="settings_rr400mcustomizer_wifi">
             <h4>{{ _('WiFi') }}</h4>
@@ -28,11 +32,11 @@
             <div id="available-ssids">
             </div>
         </div>
-        <div class="tab-pane" id="settings_rr400mcustomizer_vpn">
-            <h4>{{ _('VPN') }}</h4>
+        <div class="tab-pane" id="settings_rr400mcustomizer_lcd">
+            <h4>{{ _('LCD') }}</h4>
             <dl>
-              <dt>{{ _('VPN enabled') }}</dt>
-              <dd><input data-bind="checked: settings.plugins.rr400mcustomizer.vpn.enabled" type="checkbox"></dd>
+              <dt>{{ _('LCD type') }}</dt>
+              <dd><select id="settings_plugin_rr400mcustomizer_selectLcdMode" data-bind="options: settings.plugins.rr400mcustomizer.lcdModes, optionsText: 'name', optionsValue: 'value', value: settings.plugins.rr400mcustomizer.lcdMode"></select></dd>
             </dl>
         </div>
     </div>

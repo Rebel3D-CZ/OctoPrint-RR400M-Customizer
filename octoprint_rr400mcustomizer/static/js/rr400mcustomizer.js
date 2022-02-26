@@ -38,7 +38,7 @@ $(function () {
         pluginData += "<tr><td>Client ID</td><td>" + data.clientid + "</td></tr>";
       }
       if (data.ssids) window.ssids = data.ssids
-      pluginData += "<tr><td>&copy; 2022 Rebel3D</td></tr>";
+      pluginData += "<tr><td></td></tr><tr><td>&copy; 2022 Rebel3D</td></tr>";
       pluginData += "</tbody></table>";
       self.IconSVG(svg);
       self.popoverContent(pluginData);

@@ -1,5 +1,16 @@
 # coding = utf-8
 
+_lcddrv_imported_ = False
+
+try:
+    from .lcddrv.LCDNull import LCDNull
+    from .lcddrv.LCDTFT import LCDTFT
+
+    _lcddrv_imported_ = True
+except:
+    pass
+
+
 import octoprint.plugin
 import sys
 import logging
@@ -23,15 +34,21 @@ class RR400MCustomizerPlugin(
     octoprint.plugin.AssetPlugin
 ):
 
+    def _setLCDMode(self):
+        if self.lcdMode == 1:
+            self.lcdDriver = LCDTFT()
+        else:
+            self.lcdDriver = LCDNull()
+
     def on_event(self, event, payload):
         if event == Events.PRINT_STARTED:
-            self._printer.commands("M118 A1 P2 action:print_start")
+            self.lcdDriver.printStart(self._printer)
         elif event in (Events.PRINT_DONE, Events.PRINT_FAILED, Events.PRINT_CANCELLED):
-            self._printer.commands("M118 A1 P2 action:print_end")
+            self.lcdDriver.printEnd(self._printer)
         elif event == Events.PRINT_PAUSED:
-            self._printer.commands("M118 A1 P2 action:pause")
+            self.lcdDriver.printPause(self._printer)
         elif event == Events.PRINT_RESUMED:
-            self._printer.commands("M118 A1 P2 action:resume")
+            self.lcdDriver.printResume(self._printer)
 
     def get_settings_defaults(self):
         self._logger.info("%s: default called" % __plugin_name__)
@@ -42,7 +59,18 @@ class RR400MCustomizerPlugin(
             wifi=dict(
                ssid=self.wifi_ssid,
                psk=self.wifi_psk
-            )
+            ),
+            lcdModes=[
+               dict(
+                 name="N/A",
+                 value=0
+               ),
+               dict(
+                 name="TFT43/50/70",
+                 value=1
+               )
+            ],
+            lcdMode=1
         )
 
     def on_settings_save(self, data):
@@ -50,8 +78,13 @@ class RR400MCustomizerPlugin(
         self.vpn_enabled = self._settings.get(["vpn", "enabled"])
         self.wifi_ssid = self._settings.get(["wifi", "ssid"])
         self.wifi_psk = self._settings.get(["wifi", "psk"])
+        self.lcdMode = self._settings.get(["lcdMode"])
 
         octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+        if self.lcdMode != self._settings.get(["lcdMode"]):
+            self.lcdMode = self._settings.get(["lcdMode"])
+            self._setLCDMode()
 
         if self.vpn_enabled != self._settings.get(["vpn", "enabled"]):
             self.vpn_enabled=self._settings.get(["vpn", "enabled"])
@@ -89,27 +122,29 @@ class RR400MCustomizerPlugin(
     def __init__(self):
         self._updateTimer = None
         self.wifimode = None
+        self.vpnenable=True
+        self.wifi_ssid = ''
+        self.wifi_psk = ''
+
         # Read WiFi config
         wificfg = '/etc/wpa_supplicant/wpa_supplicant-wlan0.conf'
         cfgfile = open(wificfg, 'r')
         Lines = cfgfile.readlines()
         cfgfile.close()
 
-        self.vpn_enabled=True
         # process lines
-        self.wifi_ssid = ''
-        self.wifi_psk = ''
         for line in Lines:
             m = self.regex_kv_pairs(line.strip())
             if 'ssid' in m:
                 self.wifi_ssid = m['ssid']
             if 'psk' in m:
                 self.wifi_psk = m['psk']
-#        self._logger.info("RR400MCustomizer: WiFI %s/%s" % (wifi_ssid, wifi_pass))
 
     def on_after_startup(self):
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
         self.start_update_timer(10.0)
+        self.lcdMode = self._settings.get(["lcdMode"])
+        self._setLCDMode()
 
     def get_assets(self):
         return {
@@ -139,7 +174,7 @@ class RR400MCustomizerPlugin(
             try:
                 currentData = self._printer.get_current_data()
                 progressPerc = int(currentData["progress"]["completion"])
-                self._printer.commands("M118 A1 P2 action:notification Data Left {}/100".format(progressPerc))
+                self.lcdDriver.updateProgress(progressPerc)
             except Exception as e:
                 self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
@@ -169,7 +204,7 @@ class RR400MCustomizerPlugin(
                 if len(sys_ip) > 7 and self.wifimode != 'wlan':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to WLAN mode")
                     self.wifimode = 'wlan'
-                    self._printer.commands("M118 A1 P2 action:notification IP %s" % (sys_ip))
+                    self._printer.commands("M118 A1 P0 action:notification IP %s" % (sys_ip))
 #                    self._logger.info("%s: GCODE WLAN ip=%s" % (__plugin_name__, sys_ip))
                 return
 
@@ -180,7 +215,7 @@ class RR400MCustomizerPlugin(
                 if self.wifimode != 'ap':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to AP mode")
                     self.wifimode = 'ap'
-                    self._printer.commands("M118 A1 P2 action:notification SSID %s IP %s" % (socket.gethostname(), sys_ip))
+                    self._printer.commands("M118 A1 P0 action:notification SSID %s IP %s" % (socket.gethostname(), sys_ip))
 #                    self._logger.info("%s: GCODE AP ip=%s" % (__plugin_name__, sys_ip))
                 return
         except Exception as exc:
