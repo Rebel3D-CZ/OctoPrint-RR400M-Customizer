@@ -204,7 +204,7 @@ class RR400MCustomizerPlugin(
                 if len(sys_ip) > 7 and self.wifimode != 'wlan':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to WLAN mode")
                     self.wifimode = 'wlan'
-                    self.lcdDriver.notify("IP %s" % (sys_ip))
+                    self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
                 return
 
             # test AP mode
@@ -214,7 +214,7 @@ class RR400MCustomizerPlugin(
                 if self.wifimode != 'ap':
                     self._logger.debug("RR400mMCstomizer: WiFi switched to AP mode")
                     self.wifimode = 'ap'
-                    self.lcdDriver.notify("SSID %s IP %s" % (socket.gethostname(), sys_ip))
+                    self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
                 return
         except Exception as exc:
             self._logger.info(f"RR400MCustomizer: timer exception: {exc.args}")
