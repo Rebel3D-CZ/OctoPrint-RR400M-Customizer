@@ -20,5 +20,5 @@ class LCDTFT:
     return
 
   def notify(self, printer, message):
-    printer.commands("M118 A1 P0 action:notification %s" % (message))
+    printer.commands("M118 A1 P2 action:notification %s" % (message))
     return
