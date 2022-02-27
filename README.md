@@ -2,9 +2,7 @@
 Přizpůsobení OctoPrintu pro 3D tiskárnu RR400M s BTT TFT43(50,70) LCD
 
 **Nutno dinstalovat:**
-```
-sudo apt-get install python3-netifaces
-```
+
 https://github.com/Rebel3D-CZ/RPiWlanApHost-switcher
 
 
