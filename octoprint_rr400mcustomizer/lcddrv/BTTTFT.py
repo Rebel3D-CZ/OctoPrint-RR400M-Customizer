@@ -1,7 +1,7 @@
 class BTTTFT:
   def printStart(self, printer):
     printer.commands("M118 A1 P2 action:print_start")
-    printer.commands("M118 A1 P2 action:notification Data Left 0")
+    printer.commands("M118 A1 P2 action:notification Data Left 0/100")
     return
 
   def printEnd(self, printer):
