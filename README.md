@@ -24,4 +24,5 @@ https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
 - zobrazení ID clienta pro dálkovou podporu - **HOTOVO**
 - ovládání servisní VPN - **HOTOVO**
 - příprava pro doplnění podpory pro další LCD - **HOTOVO**
-- doplnění podpory dalších LCD
+- doplnění podpory zobrazení IP adresy a SSID v režimu AP pro LCD REPRAP_DISCOUNT_SMART_CONTROLLER a kompatibilní - **HOTOVO**
+- 
