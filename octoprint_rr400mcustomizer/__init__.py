@@ -56,10 +56,13 @@ class RR400MCustomizerPlugin(
 
     def get_settings_defaults(self):
         self._logger.info("%s: default called" % __plugin_name__)
+        # update VPN status
+        vpnInstall = len(glob.glob('/etc/openvpn/*.conf')) > 0
+
         return dict(
             vpn=dict(
                enabled=True,
-               installed=True
+               installed=vpnInstall
             ),
             wifi=dict(
                ssid=self.wifi_ssid,
@@ -153,7 +156,6 @@ class RR400MCustomizerPlugin(
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
         self.start_update_timer(10.0)
         self.lcdMode = self._settings.get(["lcdMode"])
-        self._settings.set(["vpn.insalled"], len(glob.glob('/etc/openvpn/*.conf'))>0)
         self._setLCDMode()
 
     def get_assets(self):
@@ -195,13 +197,12 @@ class RR400MCustomizerPlugin(
             try:
                 with open('/opt/rebelove.org/var/list.ssid') as f:
                     plugin_data["ssids"] = f.read().splitlines()
-            except Exception as exc:
-                pass
+            except ValueError as exc:
+                self._logger.debug("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
             self._logger.debug(plugin_data)
             self._plugin_manager.send_plugin_message(self._identifier, plugin_data)
         except Exception as e:
-            self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
-            pass
+            self._logger.debug("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
         # detect wifi status
         try:
@@ -211,7 +212,7 @@ class RR400MCustomizerPlugin(
                 sys_ip = iface[ni.AF_INET][0]['addr']
                 # in AP mode
                 if len(sys_ip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
-                    self._logger.debug("RR400mMCstomizer: WiFi switched to WLAN mode")
+                    self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
                     self.wifimode = 'wlan'
                     self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
                 return
@@ -221,13 +222,12 @@ class RR400MCustomizerPlugin(
             if len(sys_ip) > 7:
                 # in AP mode
                 if self.wifimode != 'ap' and self._printer.is_operational():
-                    self._logger.debug("RR400mMCstomizer: WiFi switched to AP mode")
+                    self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
                     self.wifimode = 'ap'
                     self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
                 return
         except Exception as e:
-            self._logger.info("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
-            pass
+            self._logger.debug("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
     def start_update_timer(self, interval):
         self._updateTimer = RepeatedTimer(
