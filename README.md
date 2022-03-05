@@ -5,12 +5,13 @@ Přizpůsobení OctoPrintu pro 3D tiskárnu RR400M s BTT TFT43(50,70) LCD
 
 https://github.com/Rebel3D-CZ/RPiWlanApHost-switcher
 
-
 **Pro manualni instalaci pluginu v OctPrintu pouzijte adresu:**
 ```
 https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
 ```
-**Podrobnější manuál pro ovládání WiFi zde** https://docs.google.com/document/d/1q59-WR13ednt_rtyzQup2NNX1EiWfqXFaw2jVoAnn_g/edit?usp=sharing
+**Podrobnější manuál pro ovládání WiFi zde:**
+
+https://docs.google.com/document/d/1q59-WR13ednt_rtyzQup2NNX1EiWfqXFaw2jVoAnn_g/edit?usp=sharing
 
 **FUNKCE:**
 - nastavení připojení WiFi - **HOTOVO**
