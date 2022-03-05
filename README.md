@@ -22,7 +22,7 @@ https://github.com/Rebel3D-CZ/OctoPrint-RR400M-Customizer/archive/master.zip
     3. Pauza a obnovení - **HOTOVO**
     4. Progress tisku v % - **HOTOVO**
 - zobrazení ID clienta pro dálkovou podporu - **HOTOVO**
-- ovládání servisní VPN - **HOTOVO**
+- ovládání VPN - **HOTOVO**
 - příprava pro doplnění podpory pro další LCD - **HOTOVO**
 - doplnění podpory zobrazení IP adresy a SSID v režimu AP pro LCD REPRAP_DISCOUNT_SMART_CONTROLLER (RDSC) a kompatibilní - **HOTOVO**
 - implementace zobrazení SSID, IP a síly signálu v ikoně pluginu na Dashboardu OctoPrintu
