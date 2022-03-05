@@ -20,6 +20,7 @@ import netifaces as ni
 import re
 import socket
 import traceback
+import glob
 from pathlib import Path
 from octoprint.util import RepeatedTimer
 from octoprint.events import Events
@@ -38,26 +39,27 @@ class RR400MCustomizerPlugin(
     def _setLCDMode(self):
         if self.lcdMode == 1:
             self.lcdDriver = BTTTFT()
-        else if self.lcdMode == 2:
+        elif self.lcdMode == 2:
             self.lcdDriver = RDSC()
         else:
             self.lcdDriver = LCDNull()
 
     def on_event(self, event, payload):
-        if event == Events.PRINT_STARTED:
+        if self._printer.is_operational() and event == Events.PRINT_STARTED:
             self.lcdDriver.printStart(self._printer)
-        elif event in (Events.PRINT_DONE, Events.PRINT_FAILED, Events.PRINT_CANCELLED):
+        elif self._printer.is_operational() and event in (Events.PRINT_DONE, Events.PRINT_FAILED, Events.PRINT_CANCELLED):
             self.lcdDriver.printEnd(self._printer)
-        elif event == Events.PRINT_PAUSED:
+        elif self._printer.is_operational() and event == Events.PRINT_PAUSED:
             self.lcdDriver.printPause(self._printer)
-        elif event == Events.PRINT_RESUMED:
+        elif self._printer.is_operational() and event == Events.PRINT_RESUMED:
             self.lcdDriver.printResume(self._printer)
 
     def get_settings_defaults(self):
         self._logger.info("%s: default called" % __plugin_name__)
         return dict(
             vpn=dict(
-               enabled=True
+               enabled=True,
+               installed=True
             ),
             wifi=dict(
                ssid=self.wifi_ssid,
@@ -151,6 +153,7 @@ class RR400MCustomizerPlugin(
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
         self.start_update_timer(10.0)
         self.lcdMode = self._settings.get(["lcdMode"])
+        self._settings.set(["vpn.insalled"], len(glob.glob('/etc/openvpn/*.conf'))>0)
         self._setLCDMode()
 
     def get_assets(self):
