@@ -1,4 +1,6 @@
-class BTTTFT:
+from .LCDNull import LCDNull
+
+class BTTTFT(LCDNull):
   def printStart(self, printer):
     printer.commands("M118 A1 P2 action:print_start")
     printer.commands("M118 A1 P2 action:notification Data Left 0/100")
