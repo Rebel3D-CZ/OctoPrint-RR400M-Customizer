@@ -1,0 +1,2 @@
+- Doplnění výpisu IP pro LCD REPRAP_DISCOUNT_SMART_CONTROLLER a kompatibilí pomocí M117
+- Implementace zobrazení SSID, IP a síly signálu v ikoně pluginu na Dashboardu OctoPrintu
