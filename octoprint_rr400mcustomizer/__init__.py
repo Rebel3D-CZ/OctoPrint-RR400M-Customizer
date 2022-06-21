@@ -197,24 +197,30 @@ class RR400MCustomizerPlugin(
             l_sysip = None
             l_wifimode = None
             # test WLAN mode
-            iface = ni.ifaddresses('wlan0')
-            if ni.AF_INET in iface:
-                l_sysip = iface[ni.AF_INET][0]['addr']
-                # in AP mode
-                if len(l_sysip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
-                    self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
-                    l_wifimode = 'wlan'
-                    self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
+            try:
+                iface = ni.ifaddresses('wlan0')
+                if ni.AF_INET in iface:
+                    l_sysip = iface[ni.AF_INET][0]['addr']
+                    # in AP mode
+                    if len(l_sysip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
+                        self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
+                        l_wifimode = 'wlan'
+                        self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
+            except Exception:
+                pass
 
             # test AP mode
-            if l_wifimode is None:
-                l_sysip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
-                if len(l_sysip) > 7:
-                    # in AP mode
-                    if self.wifimode != 'ap' and self._printer.is_operational():
-                        self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
-                        l_wifimode = 'ap'
-                        self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
+            try:
+                if l_wifimode is None:
+                    l_sysip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
+                    if len(l_sysip) > 7:
+                        # in AP mode
+                        if self.wifimode != 'ap' and self._printer.is_operational():
+                            self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
+                            l_wifimode = 'ap'
+                            self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
+            except Exception:
+                pass
         except Exception as e:
             self._logger.debug("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
             pass
