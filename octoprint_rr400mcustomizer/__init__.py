@@ -134,6 +134,7 @@ class RR400MCustomizerPlugin(
     def __init__(self):
         self._updateTimer = None
         self.wifimode = None
+        self.sys_ip = None
         self.vpnenable=True
         self.wifi_ssid = ''
         self.wifi_psk = ''
@@ -181,6 +182,7 @@ class RR400MCustomizerPlugin(
 
     def update_rr400mcustomizer_status(self):
         self._logger.debug("RR400mMCstomizer: update fired!")
+
         # Show progress if printing
         if self._printer.is_operational() and self._printer.is_printing():
             try:
@@ -190,10 +192,43 @@ class RR400MCustomizerPlugin(
             except Exception as e:
                 self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
+        # detect wifi status
+        try:
+            l_sysip = None
+            l_wifimode = None
+            # test WLAN mode
+            iface = ni.ifaddresses('wlan0')
+            if ni.AF_INET in iface:
+                l_sysip = iface[ni.AF_INET][0]['addr']
+                # in AP mode
+                if len(l_sysip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
+                    self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
+                    l_wifimode = 'wlan'
+                    self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
+
+            # test AP mode
+            if l_wifimode is None:
+                l_sysip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
+                if len(l_sysip) > 7:
+                    # in AP mode
+                    if self.wifimode != 'ap' and self._printer.is_operational():
+                        self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
+                        l_wifimode = 'ap'
+                        self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
+        except Exception as e:
+            self._logger.debug("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            pass
+        finally:
+            self.wifimode = l_wifimode
+            self.sys_ip = l_sysip
+
         # update network status
         try:
-            plugin_data = {"ssids": []}
-            plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
+            plugin_data = {"ssids": [], "clientid": 0, "wifimode": self.wifimode, "sysip": self.sys_ip}
+            try:
+                plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
+            except Exception:
+                pass
             try:
                 with open('/opt/rebelove.org/var/list.ssid') as f:
                     plugin_data["ssids"] = f.read().splitlines()
@@ -203,31 +238,8 @@ class RR400MCustomizerPlugin(
             self._plugin_manager.send_plugin_message(self._identifier, plugin_data)
         except Exception as e:
             self._logger.debug("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            pass
 
-        # detect wifi status
-        try:
-            # test WLAN mode
-            iface = ni.ifaddresses('wlan0')
-            if ni.AF_INET in iface:
-                sys_ip = iface[ni.AF_INET][0]['addr']
-                # in AP mode
-                if len(sys_ip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
-                    self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
-                    self.wifimode = 'wlan'
-                    self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
-                return
-
-            # test AP mode
-            sys_ip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
-            if len(sys_ip) > 7:
-                # in AP mode
-                if self.wifimode != 'ap' and self._printer.is_operational():
-                    self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
-                    self.wifimode = 'ap'
-                    self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
-                return
-        except Exception as e:
-            self._logger.debug("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
 
     def start_update_timer(self, interval):
         self._updateTimer = RepeatedTimer(
