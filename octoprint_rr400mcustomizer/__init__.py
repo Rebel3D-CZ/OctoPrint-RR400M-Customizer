@@ -55,7 +55,7 @@ class RR400MCustomizerPlugin(
             self.lcdDriver.printResume(self._printer)
 
     def get_settings_defaults(self):
-        self._logger.info("%s: default called" % __plugin_name__)
+        self._logger.debug("%s: default called" % __plugin_name__)
         # update VPN status
         vpnInstall = len(glob.glob('/etc/openvpn/*.conf')) > 0
 
@@ -86,7 +86,7 @@ class RR400MCustomizerPlugin(
         )
 
     def on_settings_save(self, data):
-        self._logger.info("%s: save called" % __plugin_name__)
+        self._logger.debug("%s: save called" % __plugin_name__)
         self.vpn_enabled = self._settings.get(["vpn", "enabled"])
         self.wifi_ssid = self._settings.get(["wifi", "ssid"])
         self.wifi_psk = self._settings.get(["wifi", "psk"])
@@ -155,9 +155,9 @@ class RR400MCustomizerPlugin(
 
     def on_after_startup(self):
         self._logger.info("%s v%s started!" % (__plugin_name__, self._plugin_version))
-        self.start_update_timer(10.0)
         self.lcdMode = self._settings.get(["lcdMode"])
         self._setLCDMode()
+        self.start_update_timer(10.0)
 
     def get_assets(self):
         return {
@@ -190,60 +190,66 @@ class RR400MCustomizerPlugin(
                 progressPerc = int(currentData["progress"]["completion"])
                 self.lcdDriver.updateProgress(self._printer, progressPerc)
             except Exception as e:
-                self._logger.info("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+                self._logger.debug("Display progress. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+                pass
 
         # detect wifi status
+        # new status
+        l_sysip = None
+        l_wifimode = None
+        l_clientid = None
+
+        # test wlan mode
         try:
-            l_sysip = None
-            l_wifimode = None
             # test WLAN mode
-            try:
-                iface = ni.ifaddresses('wlan0')
-                if ni.AF_INET in iface:
-                    l_sysip = iface[ni.AF_INET][0]['addr']
-                    # in AP mode
-                    if len(l_sysip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
-                        self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
-                        l_wifimode = 'wlan'
-                        self.lcdDriver.notify(self._printer, "IP %s" % (sys_ip))
-            except Exception:
-                pass
-
-            # test AP mode
-            try:
-                if l_wifimode is None:
-                    l_sysip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
-                    if len(l_sysip) > 7:
-                        # in AP mode
-                        if self.wifimode != 'ap' and self._printer.is_operational():
-                            self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
-                            l_wifimode = 'ap'
-                            self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), sys_ip))
-            except Exception:
-                pass
+            l_sysip = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
+            # in AP mode
+            if len(l_sysip) > 7 and self.wifimode != 'wlan' and self._printer.is_operational():
+                self._logger.info("RR400mCustomizer: WiFi switched to WLAN mode")
+                self.wifimode = l_wifimode = 'wlan'
+                self.sys_ip = l_sysip
+                self.lcdDriver.notify(self._printer, "IP %s" % (self.sys_ip))
         except Exception as e:
-            self._logger.debug("Caught an timer exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            self._logger.debug("WLAN mode detection. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
             pass
-        finally:
-            self.wifimode = l_wifimode
-            self.sys_ip = l_sysip
 
-        # update network status
+        # test ap mode
         try:
-            plugin_data = {"ssids": [], "clientid": 0, "wifimode": self.wifimode, "sysip": self.sys_ip}
-            try:
-                plugin_data["clientid"] = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
-            except Exception:
-                pass
+            # test AP mode
+            if l_wifimode is None:
+                l_sysip = ni.ifaddresses('ap0')[ni.AF_INET][0]['addr']
+                # in AP mode
+                if len(l_sysip) > 7 and self.wifimode != 'ap' and self._printer.is_operational():
+                    self._logger.info("RR400MCustomizer: WiFi switched to AP mode")
+                    self.wifimode = 'ap'
+                    self.sys_ip = l_sysip
+                    self.lcdDriver.notify(self._printer, "SSID %s IP %s" % (socket.gethostname(), self.sys_ip))
+        except Exception as e:
+            self._logger.debug("AP mode detection. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            pass
+
+        # get client id
+        try:
+            l_clientid = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr'].split(".")[3]
+        except Exception as e:
+            self._logger.debug("Get client ID. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            pass
+
+        # update plugin status
+        try:
+            plugin_data = {"ssids": []}
+            plugin_data["clientid"] = l_clientid
+            plugin_data["wifimode"] = self.wifimode
+            plugin_data["sysip"] = self.sys_ip
             try:
                 with open('/opt/rebelove.org/var/list.ssid') as f:
                     plugin_data["ssids"] = f.read().splitlines()
             except ValueError as exc:
-                self._logger.debug("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+                self._logger.debug("Update plugin data. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
             self._logger.debug(plugin_data)
             self._plugin_manager.send_plugin_message(self._identifier, plugin_data)
         except Exception as e:
-            self._logger.debug("Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
+            self._logger.debug("Plugin statis update. Caught an exception {0}\nTraceback:{1}".format(e, traceback.format_exc()))
             pass
 
 

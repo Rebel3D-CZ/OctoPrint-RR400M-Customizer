@@ -35,9 +35,7 @@ $(function () {
       var pluginData = '<table style="width: 100%"><thead></thead><tbody>';
       if (data.wifimode) {
         pluginData += "<tr><td>WiFi</td><td>" + data.wifimode + "</td></tr>";
-      }
-      if (data.sys_ip) {
-        pluginData += "<tr><td>IP</td><td>" + data.sys_ip + "</td></tr>";
+        pluginData += "<tr><td>IP</td><td>" + data.sysip + "</td></tr>";
       }
       if (data.clientid) {
         svg += self._iconSVGs[0];
