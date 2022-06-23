@@ -18,7 +18,7 @@ https://docs.google.com/document/d/1q59-WR13ednt_rtyzQup2NNX1EiWfqXFaw2jVoAnn_g/
 - zobrazení IP tiskárny pro připojení na OctoPrint - **HOTOVO**
 - možnost vypnutí příkazů pro ovládání BTT TFT v případě použití jiného LCD - **HOTOVO**
 - odesílání informací o průběhu tisku na BTT TFT
-    1. Start tisu (zobrazí tiskovou obrazovku) - **HOTOVO**
+    1. Start tisku (zobrazí na LCD "tiskovou obrazovku") - **HOTOVO**
     2. Stop a přerušení tisku - **HOTOVO**
     3. Pauza a obnovení - **HOTOVO**
     4. Progress tisku v % - **HOTOVO**
